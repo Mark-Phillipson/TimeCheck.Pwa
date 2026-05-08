@@ -1,4 +1,8 @@
 ﻿@inherits LayoutComponentBase
+@using TimeCheck.Pwa.Services
+@inject ISettingsService SettingsService
+@inject ITimeCheckService TimeCheckService
+@inject IEncouragementService EncouragementService
 <div class="page">
     <main>
         <div class="top-row px-4">
@@ -12,3 +16,12 @@
 
     <BottomNav />
 </div>
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        await SettingsService.LoadAsync();
+        await TimeCheckService.StartAsync();
+        await EncouragementService.StartAsync();
+    }
+}

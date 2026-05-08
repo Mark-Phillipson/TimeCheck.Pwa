@@ -1,0 +1,109 @@
+@page "/Encouragements"
+@using TimeCheck.Pwa.Services
+@inject ISettingsService SettingsService
+@inject IJSRuntime JSRuntime
+
+<PageTitle>Encouragements</PageTitle>
+
+<div class="container mt-3">
+    <h3>Encouragement Messages</h3>
+
+    <div class="mb-2">
+        <input class="form-control" placeholder="Filter messages..." @bind="_filter" />
+    </div>
+
+    <div class="mb-2">
+        @foreach (var pair in DisplayedMessages)
+        {
+            <div class="input-group mb-1">
+                <input id="message-@pair.Index" type="text" class="form-control" value="@pair.Message" @onchange="@(e => UpdateMessage(pair.Index, e?.Value?.ToString()))" />
+                <button class="btn btn-outline-danger" @onclick="(() => RemoveMessage(pair.Index))">Remove</button>
+            </div>
+        }
+        @if (FilteredCount > DisplayLimit)
+        {
+            <button class="btn btn-link" @onclick="ToggleShowAll">@(_showAll ? "Show less" : $"Show more ({FilteredCount - DisplayLimit} more)")</button>
+        }
+    </div>
+
+    <div class="d-flex gap-2 mb-2">
+        <button class="btn btn-success" @onclick="SaveSettings">Save Messages</button>
+        <button class="btn btn-outline-primary ms-auto" @onclick="AddMessage">Add Message</button>
+    </div>
+</div>
+
+@code {
+    private string _filter = string.Empty;
+    private const int DisplayLimit = 10;
+    private bool _showAll = false;
+
+    private int FilteredCount =>
+        SettingsService.EncouragementMessages.Count(m => string.IsNullOrWhiteSpace(_filter) || m.Contains(_filter, StringComparison.OrdinalIgnoreCase));
+
+    private IEnumerable<(string Message, int Index)> DisplayedMessages
+    {
+        get
+        {
+            var pairs = SettingsService.EncouragementMessages
+                .Select((m, idx) => (Message: m, Index: idx))
+                .Where(x => string.IsNullOrWhiteSpace(_filter) || x.Message.Contains(_filter, StringComparison.OrdinalIgnoreCase))
+                .OrderBy(x => x.Message, StringComparer.OrdinalIgnoreCase)
+                .ToList();
+
+            if (!_showAll)
+                pairs = pairs.Take(DisplayLimit).ToList();
+
+            return pairs;
+        }
+    }
+
+    private void ToggleShowAll()
+    {
+        _showAll = !_showAll;
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await SettingsService.LoadAsync();
+    }
+
+    private async Task SaveSettings()
+    {
+        await SettingsService.SaveAsync();
+    }
+
+    private async Task AddMessage()
+    {
+        SettingsService.EncouragementMessages.Add("New encouragement message");
+        var idx = SettingsService.EncouragementMessages.Count - 1;
+        _filter = string.Empty;
+        await InvokeAsync(StateHasChanged);
+        await Task.Yield();
+        try
+        {
+            await JSRuntime.InvokeVoidAsync("timecheck.focusElementById", $"message-{idx}");
+        }
+        catch { }
+    }
+
+    private void RemoveMessage(int index)
+    {
+        if (index >= 0 && index < SettingsService.EncouragementMessages.Count)
+            SettingsService.EncouragementMessages.RemoveAt(index);
+    }
+
+    private void UpdateMessage(int index, string? value)
+    {
+        if (value is null)
+            return;
+
+        if (index >= 0 && index < SettingsService.EncouragementMessages.Count)
+        {
+            SettingsService.EncouragementMessages[index] = value;
+        }
+        else if (index == SettingsService.EncouragementMessages.Count)
+        {
+            SettingsService.EncouragementMessages.Add(value);
+        }
+    }
+}

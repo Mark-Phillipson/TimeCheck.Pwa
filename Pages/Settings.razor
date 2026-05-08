@@ -1,0 +1,67 @@
+@page "/Settings"
+@using TimeCheck.Pwa.Services
+@inject ISettingsService SettingsService
+@inject IJSRuntime JSRuntime
+
+<PageTitle>Settings</PageTitle>
+
+<div class="container mt-3">
+    <h3>Settings</h3>
+
+    <div class="mb-3 form-check form-switch">
+        <input class="form-check-input" type="checkbox" id="quietSwitch" @bind="SettingsService.IsQuiet" />
+        <label class="form-check-label" for="quietSwitch">Quiet mode (pause automatic announcements)</label>
+    </div>
+
+    <div class="card mb-3">
+        <div class="card-header">Settings</div>
+        <div class="card-body">
+            <div class="mb-2">
+                <label>Time check interval (minutes)</label>
+                <input type="number" class="form-control" min="1" @bind="SettingsService.TimeCheckIntervalMinutes" />
+            </div>
+            <div class="mb-2">
+                <label>Encouragement min interval (minutes)</label>
+                <input type="number" class="form-control" min="1" @bind="SettingsService.EncouragementIntervalMin" />
+            </div>
+            <div class="mb-2">
+                <label>Encouragement max interval (minutes)</label>
+                <input type="number" class="form-control" min="1" @bind="SettingsService.EncouragementIntervalMax" />
+            </div>
+            <div class="mb-2 form-check">
+                <input class="form-check-input" type="checkbox" @bind="SettingsService.EncouragementEnabled" />
+                <label class="form-check-label">Enable Encouragement</label>
+            </div>
+
+            <div class="d-flex gap-2 mb-2">
+                <button class="btn btn-success" @onclick="SaveSettings">Save Settings</button>
+                <button class="btn btn-warning" @onclick="RequestNotificationPermission">Enable Notifications</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        await SettingsService.LoadAsync();
+    }
+
+    private async Task SaveSettings()
+    {
+        await SettingsService.SaveAsync();
+    }
+
+    private async Task RequestNotificationPermission()
+    {
+        try
+        {
+            var result = await JSRuntime.InvokeAsync<string>("timecheck.requestNotificationPermission");
+            if (result == "granted")
+            {
+                await JSRuntime.InvokeVoidAsync("timecheck.showNotification", "TimeCheck", "Notifications enabled.");
+            }
+        }
+        catch { }
+    }
+}
