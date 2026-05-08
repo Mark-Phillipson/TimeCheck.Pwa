@@ -7,61 +7,6 @@
 <PageTitle>Time Check</PageTitle>
 
 <div class="container mt-3">
-    <h3>Time Check</h3>
-
-    <div class="mb-3">
-        <h1>@_currentTime</h1>
-        <button class="btn btn-primary me-2" @onclick="AnnounceTime">Announce Time Now</button>
-        <button class="btn btn-secondary" @onclick="SpeakEncouragement">Say Encouragement Now</button>
-    </div>
-</div>
-
-@code {
-    private string _currentTime = DateTime.Now.ToString("h:mm tt");
-    private System.Timers.Timer? _clockTimer;
-
-    protected override Task OnInitializedAsync()
-    {
-        _clockTimer = new System.Timers.Timer(1000);
-        _clockTimer.Elapsed += (s, e) =>
-        {
-            _currentTime = DateTime.Now.ToString("h:mm tt");
-            InvokeAsync(StateHasChanged);
-        };
-        _clockTimer.Start();
-
-        return Task.CompletedTask;
-    }
-
-    private async Task AnnounceTime()
-    {
-        await TimeCheckService.SayTimeNowAsync();
-    }
-
-    private async Task SpeakEncouragement()
-    {
-        await EncouragementService.SayEncouragementNowAsync();
-    }
-
-    public ValueTask DisposeAsync()
-    {
-        if (_clockTimer != null)
-        {
-            _clockTimer.Stop();
-            _clockTimer.Dispose();
-        }
-        return ValueTask.CompletedTask;
-    }
-}
-@page "/"
-@using TimeCheck.Pwa.Services
-@inject ISettingsService SettingsService
-@inject ITimeCheckService TimeCheckService
-@inject IEncouragementService EncouragementService
-
-<PageTitle>Time Check</PageTitle>
-
-<div class="container mt-3">
 	<h3>Time Check</h3>
 
 	<div class="mb-3">
@@ -74,42 +19,9 @@
 @code {
 	private string _currentTime = DateTime.Now.ToString("h:mm tt");
 	private System.Timers.Timer? _clockTimer;
-	private string _filter = string.Empty;
 
-	private const int DisplayLimit = 10;
-	private bool _showAll = false;
-
-	private int FilteredCount =>
-		SettingsService.EncouragementMessages.Count(m => string.IsNullOrWhiteSpace(_filter) || m.Contains(_filter, StringComparison.OrdinalIgnoreCase));
-
-	private IEnumerable<(string Message, int Index)> DisplayedMessages
+	protected override Task OnInitializedAsync()
 	{
-		get
-		{
-			var pairs = SettingsService.EncouragementMessages
-				.Select((m, idx) => (Message: m, Index: idx))
-				.Where(x => string.IsNullOrWhiteSpace(_filter) || x.Message.Contains(_filter, StringComparison.OrdinalIgnoreCase))
-				.OrderBy(x => x.Message, StringComparer.OrdinalIgnoreCase)
-				.ToList();
-
-			if (!_showAll)
-				pairs = pairs.Take(DisplayLimit).ToList();
-
-			return pairs;
-		}
-	}
-
-	private void ToggleShowAll()
-	{
-		_showAll = !_showAll;
-	}
-
-	protected override async Task OnInitializedAsync()
-	{
-		await SettingsService.LoadAsync();
-		await TimeCheckService.StartAsync();
-		await EncouragementService.StartAsync();
-
 		_clockTimer = new System.Timers.Timer(1000);
 		_clockTimer.Elapsed += (s, e) =>
 		{
@@ -117,6 +29,8 @@
 			InvokeAsync(StateHasChanged);
 		};
 		_clockTimer.Start();
+
+		return Task.CompletedTask;
 	}
 
 	private async Task AnnounceTime()
@@ -129,70 +43,13 @@
 		await EncouragementService.SayEncouragementNowAsync();
 	}
 
-	private async Task SaveSettings()
-	{
-		await SettingsService.SaveAsync();
-	}
-
-	private async Task AddMessage()
-	{
-		SettingsService.EncouragementMessages.Add("New encouragement message");
-		var idx = SettingsService.EncouragementMessages.Count - 1;
-		// Clear filter so the new message is visible, then let Blazor render the new input;
-		// yield so the browser updates the DOM, then focus and select the new input via JS interop.
-		_filter = string.Empty;
-		await InvokeAsync(StateHasChanged);
-		await Task.Yield();
-		try
-		{
-			await JSRuntime.InvokeVoidAsync("timecheck.focusElementById", $"message-{idx}");
-		}
-		catch { }
-	}
-
-	private void RemoveMessage(int index)
-	{
-		if (index >= 0 && index < SettingsService.EncouragementMessages.Count)
-			SettingsService.EncouragementMessages.RemoveAt(index);
-	}
-
-	private void UpdateMessage(int index, string? value)
-	{
-		if (value is null)
-			return;
-
-		if (index >= 0 && index < SettingsService.EncouragementMessages.Count)
-		{
-			SettingsService.EncouragementMessages[index] = value;
-		}
-		else if (index == SettingsService.EncouragementMessages.Count)
-		{
-			// in case UI attempted to update the next slot, append safely
-			SettingsService.EncouragementMessages.Add(value);
-		}
-	}
-
-	private async Task RequestNotificationPermission()
-	{
-		try
-		{
-			var result = await JSRuntime.InvokeAsync<string>("timecheck.requestNotificationPermission");
-			if (result == "granted")
-			{
-				await JSRuntime.InvokeVoidAsync("timecheck.showNotification", "TimeCheck", "Notifications enabled.");
-			}
-		}
-		catch { }
-	}
-
-	public async ValueTask DisposeAsync()
+	public ValueTask DisposeAsync()
 	{
 		if (_clockTimer != null)
 		{
 			_clockTimer.Stop();
 			_clockTimer.Dispose();
 		}
-		await TimeCheckService.StopAsync();
-		await EncouragementService.StopAsync();
+		return ValueTask.CompletedTask;
 	}
 }
