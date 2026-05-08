@@ -44,6 +44,11 @@ main {
     .top-row ::deep a, .top-row ::deep .btn-link {
         margin-left: 0;
     }
+
+    /* ensure content is not hidden behind the bottom navigation */
+    article {
+        padding-bottom: calc(56px + env(safe-area-inset-bottom));
+    }
 }
 
 @media (min-width: 641px) {
