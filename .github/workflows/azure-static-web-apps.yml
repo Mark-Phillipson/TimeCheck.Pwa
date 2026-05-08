@@ -19,7 +19,12 @@ jobs:
       - name: Restore
         run: dotnet restore
       - name: Publish
-         run: dotnet publish ./TimeCheck.Pwa.csproj -c Release -o publish/wwwroot
+        run: dotnet publish ./TimeCheck.Pwa.csproj -c Release -o publish/wwwroot
+      - name: Copy Blazor static files to deploy folder
+        run: |
+          mkdir -p publish/wwwroot
+          if [ -d "./bin/Release/net10.0/wwwroot" ]; then cp -r ./bin/Release/net10.0/wwwroot/* publish/wwwroot/; fi
+          if [ -d "./TimeCheck.Pwa/bin/Release/net10.0/wwwroot" ]; then cp -r ./TimeCheck.Pwa/bin/Release/net10.0/wwwroot/* publish/wwwroot/; fi
       - name: 'Deploy to Azure Static Web Apps'
         uses: Azure/static-web-apps-deploy@v1
         with:
