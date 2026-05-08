@@ -21,26 +21,31 @@
     text-decoration: none;
     color: inherit;
     display: flex;
-    flex-direction: column;
+    /* Layout icon and label inline so captions align with icons */
+    flex-direction: row;
     align-items: center;
     justify-content: center;
+    gap: 8px;
     font-size: 0.95rem;
-    min-width: 72px;
-    padding: 6px 8px;
+    min-width: 88px;
+    padding: 8px 12px;
     line-height: 1;
     -webkit-tap-highlight-color: transparent;
+    box-sizing: border-box;
 }
 
-.bottom-nav .icon { width: 28px; height: 28px; display: block; }
+.bottom-nav .icon { width: 28px; height: 28px; display: block; flex: 0 0 auto; }
 
 .bottom-nav .label {
-    margin-top: 6px;
-    font-size: 0.9rem;
+    margin-top: 0;
+    margin-left: 0;
+    font-size: 0.95rem;
     line-height: 1;
-    white-space: normal;
-    text-align: center;
-    word-break: break-word;
-    max-width: 80px;
+    white-space: nowrap;
+    text-align: left;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 110px;
 }
 
 .bottom-nav .nav-item.active {

@@ -45,7 +45,9 @@ public class TimeCheckService : ITimeCheckService, IAsyncDisposable
                 {
                     var now = DateTime.Now;
                     var currentTime = now.ToString("h:mm tt", CultureInfo.InvariantCulture);
-                    await _tts.SpeakAsync($"The time is {currentTime}");
+                    // Repeat the spoken time three times for noisy environments (e.g., cycling)
+                    var repeated = $"The time is {currentTime}. The time is {currentTime}. The time is {currentTime}.";
+                    await _tts.SpeakAsync(repeated);
                 }
 
                 var delayMinutes = Math.Max(1, _settings.TimeCheckIntervalMinutes);
@@ -59,7 +61,8 @@ public class TimeCheckService : ITimeCheckService, IAsyncDisposable
     public ValueTask SayTimeNowAsync()
     {
         var now = DateTime.Now.ToString("h:mm tt", CultureInfo.InvariantCulture);
-        return _tts.SpeakAsync($"The time is {now}");
+        var repeated = $"The time is {now}. The time is {now}. The time is {now}.";
+        return _tts.SpeakAsync(repeated);
     }
 
     public async ValueTask DisposeAsync()
