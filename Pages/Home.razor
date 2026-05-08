@@ -57,12 +57,16 @@
 				</div>
 
 				<div class="mb-2">
-					@foreach (var idx in FilteredIndexes)
+					@foreach (var pair in DisplayedMessages)
 					{
 						<div class="input-group mb-1">
-							<input id="message-@idx" type="text" class="form-control" value="@SettingsService.EncouragementMessages[idx]" @onchange="@(e => UpdateMessage(idx, e?.Value?.ToString()))" />
-							<button class="btn btn-outline-danger" @onclick="(() => RemoveMessage(idx))">Remove</button>
+							<input id="message-@pair.Index" type="text" class="form-control" value="@SettingsService.EncouragementMessages[pair.Index]" @onchange="@(e => UpdateMessage(pair.Index, e?.Value?.ToString()))" />
+							<button class="btn btn-outline-danger" @onclick="(() => RemoveMessage(pair.Index))">Remove</button>
 						</div>
+					}
+					@if (FilteredCount > DisplayLimit)
+					{
+						<button class="btn btn-link" @onclick="ToggleShowAll">@(_showAll ? "Show less" : $"Show more ({FilteredCount - DisplayLimit} more)")</button>
 					}
 				</div>
 			</div>
@@ -75,11 +79,33 @@
 	private System.Timers.Timer? _clockTimer;
 	private string _filter = string.Empty;
 
-	private IEnumerable<int> FilteredIndexes =>
-		SettingsService.EncouragementMessages
-			.Select((m, idx) => new { m, idx })
-			.Where(x => string.IsNullOrWhiteSpace(_filter) || x.m.Contains(_filter, StringComparison.OrdinalIgnoreCase))
-			.Select(x => x.idx);
+	private const int DisplayLimit = 10;
+	private bool _showAll = false;
+
+	private int FilteredCount =>
+		SettingsService.EncouragementMessages.Count(m => string.IsNullOrWhiteSpace(_filter) || m.Contains(_filter, StringComparison.OrdinalIgnoreCase));
+
+	private IEnumerable<(string Message, int Index)> DisplayedMessages
+	{
+		get
+		{
+			var pairs = SettingsService.EncouragementMessages
+				.Select((m, idx) => (Message: m, Index: idx))
+				.Where(x => string.IsNullOrWhiteSpace(_filter) || x.Message.Contains(_filter, StringComparison.OrdinalIgnoreCase))
+				.OrderBy(x => x.Message, StringComparer.OrdinalIgnoreCase)
+				.ToList();
+
+			if (!_showAll)
+				pairs = pairs.Take(DisplayLimit).ToList();
+
+			return pairs;
+		}
+	}
+
+	private void ToggleShowAll()
+	{
+		_showAll = !_showAll;
+	}
 
 	protected override async Task OnInitializedAsync()
 	{

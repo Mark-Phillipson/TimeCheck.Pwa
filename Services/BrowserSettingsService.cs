@@ -1,5 +1,6 @@
 using Microsoft.JSInterop;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
 
@@ -8,6 +9,7 @@ namespace TimeCheck.Pwa.Services;
 public class BrowserSettingsService : ISettingsService
 {
     private const string StorageKey = "timecheck.pwa.settings.v1";
+    private const int DefaultsVersion = 1;
     private readonly IJSRuntime _js;
 
     public bool IsQuiet { get; set; } = false;
@@ -128,9 +130,114 @@ public class BrowserSettingsService : ISettingsService
         "If you're on an electric bike press boost now otherwise PEDAL"
     };
 
+    private static readonly string[] AdditionalMilitaryEncouragements = new string[]
+    {
+        "GET YOUR ARSE IN GEAR!",
+        "MOVE, MOVE, MOVE!",
+        "PEDAL LIKE YOU'VE STOLEN SOMETHING!",
+        "SHUT UP AND TURN THOSE CRANKS!",
+        "NO WHINING, ONLY WATTAGE!",
+        "PUSH THE PEDALS, NOT YOUR LAMENTS!",
+        "TURN THE PAIN INTO POWER!",
+        "MAKE THE ROAD REGRET MEETING YOU!",
+        "GRIND THOSE GEARS, SOLDIER!",
+        "STAND UP AND SMASH THE CLIMB!",
+        "SPEED UP, YOU BLOODY LEGEND!",
+        "STOP SIMMERING, START CHURNING!",
+        "BRING THE BEAST MODE!",
+        "NO PITY, ONLY PEDALS!",
+        "HARDEN UP AND HIT THE GEAR!",
+        "BE LOUD WITH YOUR WHEELS!",
+        "BITE DOWN, PUSH ON!",
+        "MAKE THE HILL APOLOGISE!",
+        "IF YOU'RE BREATHING, ACCELERATE!",
+        "DON'T CRAWL — CHARGE!",
+        "RELOAD YOUR LEGS AND FIRE!",
+        "CRUSH THE CADENCE!",
+        "THROW OOMPH INTO THE PEDALS!",
+        "OUTPACE YOUR EXCUSES!",
+        "MAKE EVERY STROKE COUNT!",
+        "DROP THE CHARM, FIND THE POWER!",
+        "PEDAL LIKE YOU MEAN IT!",
+        "SPANK THE GEARS!",
+        "HIT THE GAS WITH YOUR CALVES!",
+        "MAKE IT HURT — THAT'S PROGRESS!",
+        "SWING THE LEGS, NOT THE ARGUMENTS!",
+        "TURN WEAKNESS INTO WATTS!",
+        "LEAVE LAZINESS IN THE DUST!",
+        "SQUEEZE, PRESS, DOMINATE!",
+        "YOUR LEGS ARE WEAPONS — USE THEM!",
+        "UNLEASH THE AGGRESSION, QUIET THE DOUBT!",
+        "PUT SOME BLOOD IN THOSE PEDALS!",
+        "DON'T BE GENTLE — BE FEROCIOUS!",
+        "STOMP THE ROAD, YOU GLORIOUS LEGEND!",
+        "PUSH UNTIL YOUR MIND GIVES IN!",
+        "MAKE THE CLOCK APOLOGISE!",
+        "FLEX THE MUSCLES, FEED THE SPEED!",
+        "SHOW THE HILL NO MERCY!",
+        "NO HALF MEASURES — GO FULL THROTTLE!",
+        "HIT THE INTERVAL, NOT THE SNOOZE!",
+        "PAIN IS TEMPORARY, PRIDE IS FOREVER!",
+        "BE THE FORCE THAT MOVES THE ROAD!",
+        "BE GREATER THAN YOUR EXCUSES!",
+        "DROP THE TALK, START THE TURNS!",
+        "SWEAT NOW, BRAG LATER!",
+        "MAKE THE SLOPE REGRET EXISTING!",
+        "SPEED IS YOUR REPRISAL!",
+        "REAP SPEED, SOW EFFORT!",
+        "SQUEEZE THE KNEES, FEED THE WHEELS!",
+        "SWITCH ON, STOMP OFF!",
+        "MAKE IT A BLUR, NOT A SLOG!",
+        "GO HARD OR GO HOME!",
+        "BRING THE RUCKUS TO THE ROAD!",
+        "TURN YOUR GRIMACE INTO SPEED!",
+        "CHURN LIKE A MACHINE!",
+        "NO SOFTNESS, JUST FORCE!",
+        "PUSH, PULL, PROPEL!",
+        "SHOW THE HILL WHO OWNS THIS!",
+        "STRAIGHTEN THAT BACK, PUSH!",
+        "FORWARD, ALWAYS FORWARD!",
+        "HURRY UP, YOU MAGNIFICENT IDIOT!",
+        "PUT SOME WELLY INTO IT!",
+        "GRIP THE BARS, GRIP VICTORY!",
+        "MAKE THE ROAD FEEL YOUR WRATH!",
+        "THIS IS NO WALK IN THE PARK — SMASH IT!",
+        "FILL YOUR LUNGS AND FILL THE GAP!",
+        "SWEEP THE PAVEMENT WITH YOUR WHEELS!",
+        "IF YOU WANT EASY, GET OFF — WE DON'T!",
+        "MAKE EVERY REVOLUTION COUNT!",
+        "NO MERCY FOR THE HILL!",
+        "TURN COMPLAINTS INTO CADENCE!",
+        "SQUASH THE RESISTANCE!",
+        "LEG POWER, MENTAL STEEL!",
+        "HIT IT LIKE YOU OWE IT!",
+        "MAKE IT A MISSION, NOT A MEANDER!",
+        "FLOOD THE STRAIGHT WITH SPEED!",
+        "LEAD THE ATTACK WITH YOUR CALVES!",
+        "MAKE THE GEAR FEEL YOUR INTENT!",
+        "SPIT FIRE WITH YOUR PEDALS!",
+        "BE BOLD, BE SUDDEN, BE QUICK!",
+        "DON'T YOU DARE SLOW DOWN!",
+        "CLAIM THE ROAD, ONE TURN AT A TIME!",
+        "DON'T THINK, JUST DO!",
+        "SWAP EXCUSES FOR EFFORT!",
+        "BE LOUD WITH YOUR LEGS, NOT YOUR LIPS!",
+        "STAMP THE GROUND WITH WHEEL ROTATION!",
+        "PUT THE BOOT IN AND KEEP IT THERE!",
+        "GO LIKE IT'S THE LAST LAP!",
+        "MAKE YOUR LEGS PROUD!",
+        "LEAVE REGRET BEHIND, LEAVE AWAKE SPEED!",
+        "CHARGE THE ASCENT, NO RETREAT!",
+        "THRASH THE ROTATION!",
+        "MAKE THE PATH FEAR YOU!",
+        "DRIVE EVERY TURN WITH FURY!",
+        "NOW PEDAL, FOR GLORY AND SANITY!"
+    };
+
     public BrowserSettingsService(IJSRuntime js)
     {
         _js = js;
+        EncouragementMessages.AddRange(AdditionalMilitaryEncouragements);
     }
 
     public async ValueTask LoadAsync()
@@ -148,7 +255,39 @@ public class BrowserSettingsService : ISettingsService
                     EncouragementIntervalMin = dto.EncouragementIntervalMin > 0 ? dto.EncouragementIntervalMin : EncouragementIntervalMin;
                     EncouragementIntervalMax = dto.EncouragementIntervalMax > 0 ? dto.EncouragementIntervalMax : EncouragementIntervalMax;
                     EncouragementEnabled = dto.EncouragementEnabled;
-                    EncouragementMessages = dto.EncouragementMessages ?? EncouragementMessages;
+
+                    if (dto.EncouragementMessages == null)
+                    {
+                        // No persisted messages: keep the in-memory defaults (which already include our additions)
+                        EncouragementMessages = EncouragementMessages;
+                    }
+                    else
+                    {
+                        // Persisted messages exist. If defaults haven't been applied, merge missing defaults once.
+                        var persisted = dto.EncouragementMessages;
+
+                        if (dto.DefaultsVersion < DefaultsVersion)
+                        {
+                            var existing = new HashSet<string>(persisted, StringComparer.OrdinalIgnoreCase);
+                            var defaults = new List<string>(EncouragementMessages);
+                            var toAdd = defaults.Where(d => !existing.Contains(d)).ToList();
+                            if (toAdd.Count > 0)
+                            {
+                                persisted.AddRange(toAdd);
+                                // update dto and save merged settings back to storage
+                                try
+                                {
+                                    dto.EncouragementMessages = persisted;
+                                    dto.DefaultsVersion = DefaultsVersion;
+                                    var mergedJson = JsonSerializer.Serialize(dto);
+                                    await _js.InvokeVoidAsync("timecheck.storageSet", StorageKey, mergedJson);
+                                }
+                                catch { }
+                            }
+                        }
+
+                        EncouragementMessages = persisted;
+                    }
                 }
             }
         }
@@ -164,7 +303,8 @@ public class BrowserSettingsService : ISettingsService
             EncouragementIntervalMin = EncouragementIntervalMin,
             EncouragementIntervalMax = EncouragementIntervalMax,
             EncouragementEnabled = EncouragementEnabled,
-            EncouragementMessages = EncouragementMessages
+            EncouragementMessages = EncouragementMessages,
+            DefaultsVersion = DefaultsVersion
         };
 
         var json = JsonSerializer.Serialize(dto);
@@ -179,5 +319,6 @@ public class BrowserSettingsService : ISettingsService
         public int EncouragementIntervalMax { get; set; }
         public bool EncouragementEnabled { get; set; }
         public List<string>? EncouragementMessages { get; set; }
+        public int DefaultsVersion { get; set; } = 0;
     }
 }
