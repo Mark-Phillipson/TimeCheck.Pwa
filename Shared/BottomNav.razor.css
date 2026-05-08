@@ -3,9 +3,9 @@
     left: 0;
     right: 0;
     bottom: 0;
-    /* Use roomy padding and min-height so touch targets are comfortable */
-    padding: 10px 6px calc(12px + env(safe-area-inset-bottom, 0px));
-    min-height: 72px;
+    /* Provide extra bottom padding so labels are never clipped by safe areas */
+    padding: 12px 6px calc(20px + env(safe-area-inset-bottom, 0px));
+    min-height: 84px;
     display: flex;
     justify-content: space-around;
     align-items: center;
@@ -21,14 +21,14 @@
     text-decoration: none;
     color: inherit;
     display: flex;
-    /* Layout icon and label inline so captions align with icons */
-    flex-direction: row;
+    /* Stack icon above label and center them */
+    flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 8px;
+    gap: 6px;
     font-size: 0.95rem;
-    min-width: 88px;
-    padding: 8px 12px;
+    min-width: 72px;
+    padding: 6px 8px;
     line-height: 1;
     -webkit-tap-highlight-color: transparent;
     box-sizing: border-box;
@@ -37,15 +37,14 @@
 .bottom-nav .icon { width: 28px; height: 28px; display: block; flex: 0 0 auto; }
 
 .bottom-nav .label {
-    margin-top: 0;
-    margin-left: 0;
+    margin: 0;
     font-size: 0.95rem;
     line-height: 1;
     white-space: nowrap;
-    text-align: left;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    max-width: 110px;
+    text-align: center;
+    overflow: visible;
+    max-width: 88px;
+    padding-bottom: 6px; /* extra space so label doesn't clip at the bottom */
 }
 
 .bottom-nav .nav-item.active {
