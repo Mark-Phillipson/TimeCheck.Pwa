@@ -1,0 +1,29 @@
+:root {
+    /* San Fairy Ann Cycling Club - brand tokens */
+    --brand-primary: #382860;
+    --brand-on-primary: #ffffff;
+    --brand-accent: #1b6ec2;
+    --brand-accent-700: #1861ac;
+    --brand-focus: #258cfb;
+    --brand-link: var(--brand-accent);
+
+    /* Semantic tokens */
+    --success: #26b050;
+    --danger: #b32121;
+    --surface-stroke: #e0e0e0;
+    --bg: #f7f7f7;
+    --accent-2: #c02d76;
+
+    /* Touch / layout helpers */
+    --app-touch-target: 44px;
+}
+
+/* Utility for safe area on devices with notches */
+.safe-area-bottom {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+.btn-touch {
+    min-height: var(--app-touch-target);
+    padding: 0.5rem 1rem;
+}
