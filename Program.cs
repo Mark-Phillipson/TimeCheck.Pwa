@@ -12,5 +12,6 @@ builder.Services.AddScoped<TimeCheck.Pwa.Services.ITtsService, TimeCheck.Pwa.Ser
 builder.Services.AddScoped<TimeCheck.Pwa.Services.ISettingsService, TimeCheck.Pwa.Services.BrowserSettingsService>();
 builder.Services.AddScoped<TimeCheck.Pwa.Services.ITimeCheckService, TimeCheck.Pwa.Services.TimeCheckService>();
 builder.Services.AddScoped<TimeCheck.Pwa.Services.IEncouragementService, TimeCheck.Pwa.Services.EncouragementService>();
+builder.Services.AddScoped<TimeCheck.Pwa.Services.IJokeService, TimeCheck.Pwa.Services.JokeService>();
 
 await builder.Build().RunAsync();

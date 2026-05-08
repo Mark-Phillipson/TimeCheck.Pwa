@@ -130,6 +130,22 @@ public class BrowserSettingsService : ISettingsService
         "If you're on an electric bike press boost now otherwise PEDAL"
     };
 
+    // Simple default jokes (small seed); users can add many more via the UI or import
+    public int JokeIntervalMin { get; set; } = 10;
+    public int JokeIntervalMax { get; set; } = 20;
+    public bool JokesEnabled { get; set; } = false;
+    public List<string> JokeMessages { get; set; } = new List<string>
+    {
+        "Why do bikes fall over? Because they're two-tired!",
+        "What do you call a funny bicycle? A comedi-cycle!",
+        "Why can't a bicycle stand on its own? It's two-tired.",
+        "What did the bicycle say to the mechanic? 'Wheel you help me?'",
+        "Why did the cyclist go to school? To improve their ped-ucation!",
+        "Why did the bicycle take a nap? It was saddled with work!",
+        "What do you call a bicycle built by a baker? A roll-er.",
+        "Why do cyclists always know the best routes? They've got a great sense of direction!"
+    };
+
     private static readonly string[] AdditionalMilitaryEncouragements = new string[]
     {
         "GET YOUR ARSE IN GEAR!",
@@ -288,6 +304,20 @@ public class BrowserSettingsService : ISettingsService
 
                         EncouragementMessages = persisted;
                     }
+                    
+                    // Jokes: persisted or keep defaults
+                    JokesEnabled = dto.JokesEnabled;
+                    JokeIntervalMin = dto.JokeIntervalMin > 0 ? dto.JokeIntervalMin : JokeIntervalMin;
+                    JokeIntervalMax = dto.JokeIntervalMax > 0 ? dto.JokeIntervalMax : JokeIntervalMax;
+
+                    if (dto.JokeMessages == null)
+                    {
+                        JokeMessages = JokeMessages;
+                    }
+                    else
+                    {
+                        JokeMessages = dto.JokeMessages;
+                    }
                 }
             }
         }
@@ -304,6 +334,10 @@ public class BrowserSettingsService : ISettingsService
             EncouragementIntervalMax = EncouragementIntervalMax,
             EncouragementEnabled = EncouragementEnabled,
             EncouragementMessages = EncouragementMessages,
+            JokeIntervalMin = JokeIntervalMin,
+            JokeIntervalMax = JokeIntervalMax,
+            JokesEnabled = JokesEnabled,
+            JokeMessages = JokeMessages,
             DefaultsVersion = DefaultsVersion
         };
 
@@ -319,6 +353,10 @@ public class BrowserSettingsService : ISettingsService
         public int EncouragementIntervalMax { get; set; }
         public bool EncouragementEnabled { get; set; }
         public List<string>? EncouragementMessages { get; set; }
+        public List<string>? JokeMessages { get; set; }
+        public int JokeIntervalMin { get; set; }
+        public int JokeIntervalMax { get; set; }
+        public bool JokesEnabled { get; set; }
         public int DefaultsVersion { get; set; } = 0;
     }
 }

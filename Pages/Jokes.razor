@@ -1,0 +1,120 @@
+@page "/Jokes"
+@using TimeCheck.Pwa.Services
+@inject ISettingsService SettingsService
+@inject IJSRuntime JSRuntime
+
+<PageTitle>Jokes</PageTitle>
+
+<div class="container mt-3">
+    <h3>Cycling Jokes</h3>
+
+    <div class="mb-2">
+        <input class="form-control" placeholder="Filter jokes..." @bind="_filter" />
+    </div>
+
+    <div class="mb-2">
+        @foreach (var pair in DisplayedMessages)
+        {
+            <div class="input-group mb-1">
+                <input id="joke-@pair.Index" type="text" class="form-control" value="@pair.Message" @onchange="@(e => UpdateMessage(pair.Index, e?.Value?.ToString()))" />
+                <button class="btn btn-outline-danger" @onclick="(() => RemoveMessage(pair.Index))">Remove</button>
+            </div>
+        }
+        @if (FilteredCount > DisplayLimit)
+        {
+            <button class="btn btn-link" @onclick="ToggleShowAll">@(_showAll ? "Show less" : $"Show more ({FilteredCount - DisplayLimit} more)")</button>
+        }
+    </div>
+
+    <div class="d-flex gap-2 mb-2 align-items-center">
+        <button class="btn btn-success" @onclick="SaveSettings">Save Jokes</button>
+        <span class="ms-2 text-success" role="status" aria-live="polite">@(_saved ? "Saved" : "")</span>
+        <button class="btn btn-outline-primary ms-auto" @onclick="AddMessage">Add Joke</button>
+    </div>
+</div>
+
+@code {
+    private string _filter = string.Empty;
+    private const int DisplayLimit = 10;
+    private bool _showAll = false;
+
+    private int FilteredCount =>
+        SettingsService.JokeMessages.Count(m => string.IsNullOrWhiteSpace(_filter) || m.Contains(_filter, StringComparison.OrdinalIgnoreCase));
+
+    private IEnumerable<(string Message, int Index)> DisplayedMessages
+    {
+        get
+        {
+            var pairs = SettingsService.JokeMessages
+                .Select((m, idx) => (Message: m, Index: idx))
+                .Where(x => string.IsNullOrWhiteSpace(_filter) || x.Message.Contains(_filter, StringComparison.OrdinalIgnoreCase))
+                .OrderBy(x => x.Message, StringComparer.OrdinalIgnoreCase)
+                .ToList();
+
+            if (!_showAll)
+                pairs = pairs.Take(DisplayLimit).ToList();
+
+            return pairs;
+        }
+    }
+
+    private void ToggleShowAll()
+    {
+        _showAll = !_showAll;
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await SettingsService.LoadAsync();
+    }
+
+    private bool _saved = false;
+
+    private async Task SaveSettings()
+    {
+        await SettingsService.SaveAsync();
+        _saved = true;
+        StateHasChanged();
+        _ = Task.Run(async () =>
+        {
+            await Task.Delay(2000);
+            _saved = false;
+            await InvokeAsync(StateHasChanged);
+        });
+    }
+
+    private async Task AddMessage()
+    {
+        SettingsService.JokeMessages.Add("New joke");
+        var idx = SettingsService.JokeMessages.Count - 1;
+        _filter = string.Empty;
+        await InvokeAsync(StateHasChanged);
+        await Task.Yield();
+        try
+        {
+            await JSRuntime.InvokeVoidAsync("timecheck.focusElementById", $"joke-{idx}");
+        }
+        catch { }
+    }
+
+    private void RemoveMessage(int index)
+    {
+        if (index >= 0 && index < SettingsService.JokeMessages.Count)
+            SettingsService.JokeMessages.RemoveAt(index);
+    }
+
+    private void UpdateMessage(int index, string? value)
+    {
+        if (value is null)
+            return;
+
+        if (index >= 0 && index < SettingsService.JokeMessages.Count)
+        {
+            SettingsService.JokeMessages[index] = value;
+        }
+        else if (index == SettingsService.JokeMessages.Count)
+        {
+            SettingsService.JokeMessages.Add(value);
+        }
+    }
+}

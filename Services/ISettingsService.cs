@@ -11,6 +11,12 @@ public interface ISettingsService
     int EncouragementIntervalMax { get; set; }
     bool EncouragementEnabled { get; set; }
     List<string> EncouragementMessages { get; set; }
+    
+    // Jokes feature settings
+    int JokeIntervalMin { get; set; }
+    int JokeIntervalMax { get; set; }
+    bool JokesEnabled { get; set; }
+    List<string> JokeMessages { get; set; }
 
     ValueTask LoadAsync();
     ValueTask SaveAsync();

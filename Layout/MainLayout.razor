@@ -3,6 +3,7 @@
 @inject ISettingsService SettingsService
 @inject ITimeCheckService TimeCheckService
 @inject IEncouragementService EncouragementService
+@inject IJokeService JokeService
 <div class="page">
     <main>
         <article class="content px-4">
@@ -19,5 +20,6 @@
         await SettingsService.LoadAsync();
         await TimeCheckService.StartAsync();
         await EncouragementService.StartAsync();
+        await JokeService.StartAsync();
     }
 }

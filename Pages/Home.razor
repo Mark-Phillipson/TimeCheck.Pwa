@@ -3,6 +3,7 @@
 @inject ISettingsService SettingsService
 @inject ITimeCheckService TimeCheckService
 @inject IEncouragementService EncouragementService
+@inject IJokeService JokeService
 
 <PageTitle>Time Check</PageTitle>
 
@@ -17,6 +18,7 @@
 		<div class="actions">
 			<button class="btn btn-primary btn-lg btn-touch" @onclick="AnnounceTime">Announce Time Now</button>
 			<button class="btn btn-secondary btn-lg btn-touch" @onclick="SpeakEncouragement">Say Encouragement Now</button>
+			<button class="btn btn-info btn-lg btn-touch" @onclick="TellJoke">Tell Joke Now</button>
 		</div>
 	</div>
 </div>
@@ -46,6 +48,11 @@
 	private async Task SpeakEncouragement()
 	{
 		await EncouragementService.SayEncouragementNowAsync();
+	}
+
+	private async Task TellJoke()
+	{
+		await JokeService.SayJokeNowAsync();
 	}
 
 	public ValueTask DisposeAsync()
