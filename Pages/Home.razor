@@ -6,13 +6,18 @@
 
 <PageTitle>Time Check</PageTitle>
 
-<div class="container mt-3">
-	<h3>Time Check</h3>
+<div class="container-fluid mt-3 home">
+	<div class="home-inner mx-auto">
+		<h3 class="text-center">Time Check</h3>
 
-	<div class="mb-3">
-		<h1>@_currentTime</h1>
-		<button class="btn btn-primary me-2" @onclick="AnnounceTime">Announce Time Now</button>
-		<button class="btn btn-secondary" @onclick="SpeakEncouragement">Say Encouragement Now</button>
+		<div class="mb-3">
+			<h1 class="time-display">@_currentTime</h1>
+		</div>
+
+		<div class="actions">
+			<button class="btn btn-primary btn-lg btn-touch" @onclick="AnnounceTime">Announce Time Now</button>
+			<button class="btn btn-secondary btn-lg btn-touch" @onclick="SpeakEncouragement">Say Encouragement Now</button>
+		</div>
 	</div>
 </div>
 
