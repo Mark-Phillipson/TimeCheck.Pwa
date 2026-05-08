@@ -3,7 +3,9 @@
     left: 0;
     right: 0;
     bottom: 0;
-    height: 56px;
+    /* Use roomy padding and min-height so touch targets are comfortable */
+    padding: 10px 6px calc(12px + env(safe-area-inset-bottom, 0px));
+    min-height: 72px;
     display: flex;
     justify-content: space-around;
     align-items: center;
@@ -11,8 +13,8 @@
     color: var(--brand-on-primary);
     border-top: 1px solid rgba(255,255,255,0.08);
     z-index: 1000;
-    padding-bottom: env(safe-area-inset-bottom, 0px);
     box-shadow: 0 -1px 6px rgba(0,0,0,0.12);
+    box-sizing: border-box;
 }
 
 .bottom-nav .nav-item {
@@ -21,12 +23,25 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    font-size: 0.75rem;
-    width: 64px;
+    justify-content: center;
+    font-size: 0.95rem;
+    min-width: 72px;
+    padding: 6px 8px;
     line-height: 1;
+    -webkit-tap-highlight-color: transparent;
 }
 
-.bottom-nav .icon { width: 20px; height: 20px; display: block; }
+.bottom-nav .icon { width: 28px; height: 28px; display: block; }
+
+.bottom-nav .label {
+    margin-top: 6px;
+    font-size: 0.9rem;
+    line-height: 1;
+    white-space: normal;
+    text-align: center;
+    word-break: break-word;
+    max-width: 80px;
+}
 
 .bottom-nav .nav-item.active {
     color: var(--brand-accent);
