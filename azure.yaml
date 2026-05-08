@@ -1,0 +1,18 @@
+name: TimeCheck.Pwa
+services:
+  web:
+    project: .
+    language: dotnet
+    host: staticwebapp
+    build:
+      commands:
+        - dotnet restore
+        - dotnet build --configuration Release
+        - dotnet publish --configuration Release -o ./publish
+      output: publish/wwwroot
+infrastructure:
+  template: infra/main.bicep
+  parameters:
+    resourcePrefix: tc
+    envName: prod
+    skuName: Free
