@@ -1,4 +1,9 @@
-.home-inner { max-width: 720px; padding: 0 1rem; }
+.home-inner {
+    /* mobile-first: full width on phones */
+    max-width: 100%;
+    padding: 0 0.5rem;
+    margin: 0;
+}
 
 .time-display {
     font-weight: 700;
@@ -22,5 +27,6 @@
 }
 
 @media (min-width: 641px) {
-    .home-inner { max-width: 540px; }
+    /* center and limit width on larger screens */
+    .home-inner { max-width: 720px; margin: 0 auto; padding: 0 1rem; }
 }

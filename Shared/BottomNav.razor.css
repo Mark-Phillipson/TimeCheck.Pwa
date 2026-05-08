@@ -26,11 +26,13 @@
     line-height: 1;
 }
 
-.bottom-nav .icon { font-size: 1.25rem; }
+.bottom-nav .icon { width: 20px; height: 20px; display: block; }
 
 .bottom-nav .nav-item.active {
     color: var(--brand-accent);
 }
+
+.bottom-nav .icon path { fill: currentColor; }
 
 .bottom-nav .nav-item:focus { outline: none; }
 
