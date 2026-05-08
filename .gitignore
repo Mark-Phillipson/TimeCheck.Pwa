@@ -1,0 +1,43 @@
+## .gitignore for .NET / Blazor projects
+
+# Ignore build outputs
+**/bin/
+**/obj/
+[Bb]in/
+[Oo]bj/
+[Dd]ebug/
+[Rr]elease/
+artifacts/
+
+# Visual Studio and editors
+.vs/
+.vscode/
+.idea/
+
+# Rider
+.idea/
+
+# NuGet
+*.nupkg
+packages/
+
+# User-specific files
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Logs and test results
+*.log
+TestResults/
+*.trx
+
+# Dotnet WebAssembly / Blazor outputs
+/wwwroot/_framework/
+/wwwroot/service-worker-assets.js
+/service-worker.published.js
+/service-worker.js
+
+# Misc
+Thumbs.db
+.DS_Store
