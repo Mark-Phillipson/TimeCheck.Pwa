@@ -4,6 +4,7 @@
 @inject ITimeCheckService TimeCheckService
 @inject IEncouragementService EncouragementService
 @inject IJokeService JokeService
+@inject Microsoft.JSInterop.IJSRuntime JS
 
 <PageTitle>Time Check</PageTitle>
 
@@ -40,6 +41,7 @@
 					<button class="btn btn-primary btn-lg btn-touch" @onclick="AnnounceTime" disabled="@(!SettingsService.TimeCheckEnabled || SettingsService.IsQuiet)">Announce Time Now</button>
 					<button class="btn btn-secondary btn-lg btn-touch" @onclick="SpeakEncouragement" disabled="@(!SettingsService.EncouragementEnabled || SettingsService.IsQuiet)">Say Encouragement Now</button>
 					<button class="btn btn-info btn-lg btn-touch" @onclick="TellJoke" disabled="@(!SettingsService.JokesEnabled || SettingsService.IsQuiet)">Tell Joke Now</button>
+					<button class="btn btn-warning btn-lg btn-touch" @onclick="UpdateApp">Update App</button>
 				</div>
 			</div>
 		</div>
@@ -78,6 +80,18 @@
 		await JokeService.SayJokeNowAsync();
 	}
 
+	private async Task UpdateApp()
+	{
+		try
+		{
+			await JS.InvokeVoidAsync("timecheck.updatePwa");
+		}
+		catch (Exception ex)
+		{
+			Console.Error.WriteLine($"Update PWA failed: {ex}");
+		}
+	}
+
 	private bool TimeCheckEnabled
 	{
 		get => SettingsService.TimeCheckEnabled;
@@ -89,6 +103,8 @@
 				_ = SettingsService.SaveAsync();
 			}
 		}
+
+
 	}
 
 	private bool JokesEnabled

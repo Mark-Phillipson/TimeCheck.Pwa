@@ -221,6 +221,44 @@ window.timecheck = (function () {
         } catch (e) { console.error('stopSampleAudio failed', e); }
     };
 
+    // Trigger PWA update: message waiting worker to skip waiting then reload on controllerchange
+    api.updatePwa = function () {
+        if (!('serviceWorker' in navigator)) {
+            console.info('Service worker not supported');
+            return;
+        }
+        navigator.serviceWorker.getRegistration().then(function (reg) {
+            if (!reg) {
+                console.info('No service worker registration found.');
+                return;
+            }
+
+            var refreshing = false;
+            function onControllerChange() {
+                if (refreshing) return;
+                refreshing = true;
+                window.location.reload();
+            }
+            navigator.serviceWorker.addEventListener('controllerchange', onControllerChange);
+
+            if (reg.waiting) {
+                try { reg.waiting.postMessage({ type: 'SKIP_WAITING' }); } catch (e) { console.error(e); }
+                return;
+            }
+
+            if (reg.installing) {
+                reg.installing.addEventListener('statechange', function () {
+                    if (reg.waiting) {
+                        try { reg.waiting.postMessage({ type: 'SKIP_WAITING' }); } catch (e) { console.error(e); }
+                    }
+                });
+                return;
+            }
+
+            reg.update().catch(function (e) { console.error('SW update failed', e); });
+        }).catch(function (e) { console.error('getRegistration failed', e); });
+    };
+
     api.isSupported = api.isSupported;
     return api;
 })();
