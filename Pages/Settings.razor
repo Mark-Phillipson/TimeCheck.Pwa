@@ -48,8 +48,8 @@
 
             <div class="d-flex gap-2 mb-2">
                 <button class="btn btn-warning" @onclick="RequestNotificationPermission">Enable Notifications</button>
-                <button class="btn btn-primary" @onclick="PlaySampleAudio">Play Sample Audio</button>
-                <button class="btn btn-secondary" @onclick="StopSampleAudio">Stop Sample Audio</button>
+                <button class="btn btn-primary" onclick="timecheck.playSampleAudio(true)">Play Sample Audio</button>
+                <button class="btn btn-secondary" onclick="timecheck.stopSampleAudio()">Stop Sample Audio</button>
             </div>
         </div>
     </div>

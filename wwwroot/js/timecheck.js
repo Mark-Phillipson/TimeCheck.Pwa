@@ -129,6 +129,7 @@ window.timecheck = (function () {
     // continues when the app is backgrounded / the screen is locked.
     api.playSampleAudio = function (loop) {
         try {
+            console.log('timecheck.playSampleAudio called, loop=', !!loop);
             // Prefer WebAudio when available
             var AudioCtx = window.AudioContext || window.webkitAudioContext;
             if (AudioCtx) {
@@ -147,9 +148,9 @@ window.timecheck = (function () {
                 var osc = api._audioContext.createOscillator();
                 var gain = api._audioContext.createGain();
                 osc.type = 'sine';
-                osc.frequency.value = 220; // low tone
-                // Very low volume so this is unobtrusive but keeps audio active
-                gain.gain.value = 0.001;
+                osc.frequency.value = 440; // audible test tone (A4)
+                // Test volume: slightly audible. Reduce later for production.
+                gain.gain.value = 0.02;
                 osc.connect(gain);
                 gain.connect(api._audioContext.destination);
                 osc.start();
@@ -164,37 +165,44 @@ window.timecheck = (function () {
                 return;
             }
 
-            // Fallback: create an <audio> element and attempt to play a tiny silent blob
+            // Fallback: create an <audio> element and attempt to play a short beep WAV
             if (!api._audioEl) {
                 var a = document.createElement('audio');
                 a.loop = !!loop;
-                // Create 1-second silent WAV via JS (very small)
                 try {
-                    var numSamples = 44100;
+                    var sampleRate = 44100;
+                    var durationSec = 1.0;
+                    var numSamples = Math.floor(sampleRate * durationSec);
                     var buffer = new ArrayBuffer(44 + numSamples * 2);
                     var view = new DataView(buffer);
                     function writeString(view, offset, string) {
                         for (var i = 0; i < string.length; i++) view.setUint8(offset + i, string.charCodeAt(i));
                     }
-                    // WAV header
+                    // WAV header (mono, 16-bit)
                     writeString(view, 0, 'RIFF');
                     view.setUint32(4, 36 + numSamples * 2, true);
                     writeString(view, 8, 'WAVE');
                     writeString(view, 12, 'fmt ');
                     view.setUint32(16, 16, true);
-                    view.setUint16(20, 1, true);
-                    view.setUint16(22, 1, true);
-                    view.setUint32(24, 44100, true);
-                    view.setUint32(28, 44100 * 2, true);
+                    view.setUint16(20, 1, true); // PCM
+                    view.setUint16(22, 1, true); // channels
+                    view.setUint32(24, sampleRate, true);
+                    view.setUint32(28, sampleRate * 2, true);
                     view.setUint16(32, 2, true);
                     view.setUint16(34, 16, true);
                     writeString(view, 36, 'data');
                     view.setUint32(40, numSamples * 2, true);
-                    // PCM data already zeros (silent)
+                    // Fill PCM data with a sine wave (440Hz)
+                    for (var i = 0; i < numSamples; i++) {
+                        var t = i / sampleRate;
+                        var sample = Math.sin(2 * Math.PI * 440 * t) * 0.5; // amplitude 0.5
+                        var s = Math.max(-1, Math.min(1, sample));
+                        view.setInt16(44 + i * 2, s * 0x7fff, true);
+                    }
                     var blob = new Blob([view], { type: 'audio/wav' });
                     a.src = URL.createObjectURL(blob);
                 } catch (e) {
-                    console.warn('Could not create silent audio fallback', e);
+                    console.warn('Could not create beep audio fallback', e);
                 }
                 api._audioEl = a;
             }
@@ -204,6 +212,7 @@ window.timecheck = (function () {
 
     api.stopSampleAudio = function () {
         try {
+            console.log('timecheck.stopSampleAudio called');
             if (api._oscillator) {
                 try { api._oscillator.stop(); } catch (e) { }
                 try { api._oscillator.disconnect(); } catch (e) { }
