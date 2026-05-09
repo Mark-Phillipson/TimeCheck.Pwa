@@ -32,6 +32,21 @@
 
             <div class="d-flex gap-2 mb-2">
                 <button class="btn btn-success" @onclick="SaveSettings">Save Settings</button>
+                <button class="btn btn-outline-secondary" @onclick="TestVoice">Test Voice</button>
+            </div>
+
+            <div class="mb-2">
+                <label>Voice</label>
+                <select class="form-select" @bind="SettingsService.Voice">
+                    <option value="">(Default)</option>
+                    @foreach (var v in Voices)
+                    {
+                        <option value="@v.VoiceURI">@v.Name (@v.Lang)</option>
+                    }
+                </select>
+            </div>
+
+            <div class="d-flex gap-2 mb-2">
                 <button class="btn btn-warning" @onclick="RequestNotificationPermission">Enable Notifications</button>
                 <button class="btn btn-primary" @onclick="PlaySampleAudio">Play Sample Audio</button>
                 <button class="btn btn-secondary" @onclick="StopSampleAudio">Stop Sample Audio</button>
@@ -44,6 +59,12 @@
     protected override async Task OnInitializedAsync()
     {
         await SettingsService.LoadAsync();
+        try
+        {
+            var list = await JSRuntime.InvokeAsync<VoiceInfo[]>("timecheck.getVoices");
+            if (list != null) Voices = list.ToList();
+        }
+        catch { }
     }
 
     private async Task SaveSettings()
@@ -80,5 +101,25 @@
             await JSRuntime.InvokeVoidAsync("timecheck.stopSampleAudio");
         }
         catch { }
+    }
+
+    private async Task TestVoice()
+    {
+        try
+        {
+            var sample = "This is a test of the selected voice.";
+            var voiceId = SettingsService.Voice;
+            await JSRuntime.InvokeVoidAsync("timecheck.speak", sample, true, voiceId);
+        }
+        catch { }
+    }
+
+    private List<VoiceInfo> Voices { get; set; } = new List<VoiceInfo>();
+
+    private class VoiceInfo
+    {
+        public string Name { get; set; } = string.Empty;
+        public string Lang { get; set; } = string.Empty;
+        public string VoiceURI { get; set; } = string.Empty;
     }
 }

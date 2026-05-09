@@ -6,6 +6,7 @@ namespace TimeCheck.Pwa.Services;
 public interface ISettingsService
 {
     bool IsQuiet { get; set; }
+    string? Voice { get; set; }
     int TimeCheckIntervalMinutes { get; set; }
     bool TimeCheckEnabled { get; set; }
     int EncouragementIntervalMin { get; set; }

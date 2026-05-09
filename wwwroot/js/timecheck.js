@@ -6,7 +6,9 @@ window.timecheck = (function () {
         return typeof window !== 'undefined' && 'speechSynthesis' in window;
     };
 
-    api.speak = function (text, cancelPrior) {
+    // speak(text, cancelPrior, voiceId)
+    // voiceId may be a voiceURI or name; if provided, we try to select it
+    api.speak = function (text, cancelPrior, voiceId) {
         try {
             if (!api.isSupported()) return;
             if (cancelPrior) {
@@ -14,11 +16,58 @@ window.timecheck = (function () {
                 api._utterance = null;
             }
             const u = new SpeechSynthesisUtterance(text || '');
+
+            try {
+                if (voiceId && 'speechSynthesis' in window) {
+                    var vs = window.speechSynthesis.getVoices() || [];
+                    var match = vs.find(v => (v.voiceURI && v.voiceURI === voiceId) || v.name === voiceId);
+                    if (match) u.voice = match;
+                }
+            } catch (e) { /* ignore voice selection errors */ }
+
             api._utterance = u;
             window.speechSynthesis.speak(u);
         } catch (e) {
             console.error('TTS speak failed', e);
         }
+    };
+
+    // Return available voices as a Promise that resolves to array of { name, lang, voiceURI }
+    api.getVoices = function () {
+        return new Promise(function (resolve) {
+            try {
+                if (!api.isSupported()) { resolve([]); return; }
+
+                function mapVoices(vs) {
+                    return (vs || []).map(function (v) {
+                        return { name: v.name || '', lang: v.lang || '', voiceURI: v.voiceURI || v.name || '' };
+                    });
+                }
+
+                var voices = window.speechSynthesis.getVoices();
+                if (voices && voices.length > 0) { resolve(mapVoices(voices)); return; }
+
+                var resolved = false;
+                var handler = function () {
+                    try {
+                        var v = window.speechSynthesis.getVoices() || [];
+                        if (!resolved) { resolved = true; resolve(mapVoices(v)); }
+                    } catch (e) { if (!resolved) { resolved = true; resolve([]); } }
+                    try { window.speechSynthesis.onvoiceschanged = null; } catch (e) { }
+                };
+
+                try { window.speechSynthesis.onvoiceschanged = handler; } catch (e) { }
+
+                // Fallback timeout in case onvoiceschanged doesn't fire
+                setTimeout(function () {
+                    try {
+                        if (!resolved) { resolved = true; resolve(mapVoices(window.speechSynthesis.getVoices() || [])); }
+                    } catch (e) { if (!resolved) { resolved = true; resolve([]); } }
+                }, 1000);
+            } catch (e) {
+                resolve([]);
+            }
+        });
     };
 
     api.cancel = function () {

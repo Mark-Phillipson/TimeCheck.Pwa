@@ -13,6 +13,8 @@ public class BrowserSettingsService : ISettingsService
     private readonly IJSRuntime _js;
 
     public bool IsQuiet { get; set; } = false;
+    // Optional saved voice (voiceURI or name)
+    public string? Voice { get; set; }
     public int TimeCheckIntervalMinutes { get; set; } = 5;
     public bool TimeCheckEnabled { get; set; } = true;
     public int EncouragementIntervalMin { get; set; } = 10;
@@ -320,6 +322,9 @@ public class BrowserSettingsService : ISettingsService
                     {
                         JokeMessages = dto.JokeMessages;
                     }
+
+                    // Voice (optional)
+                    Voice = dto.Voice;
                 }
             }
         }
@@ -331,6 +336,7 @@ public class BrowserSettingsService : ISettingsService
         var dto = new BrowserSettingsDto
         {
             IsQuiet = IsQuiet,
+            Voice = Voice,
             TimeCheckIntervalMinutes = TimeCheckIntervalMinutes,
             TimeCheckEnabled = TimeCheckEnabled,
             EncouragementIntervalMin = EncouragementIntervalMin,
@@ -351,6 +357,8 @@ public class BrowserSettingsService : ISettingsService
     private class BrowserSettingsDto
     {
         public bool IsQuiet { get; set; }
+        // Optional saved voice identifier (voiceURI or name)
+        public string? Voice { get; set; }
         public int TimeCheckIntervalMinutes { get; set; }
         public bool? TimeCheckEnabled { get; set; }
         public int EncouragementIntervalMin { get; set; }
