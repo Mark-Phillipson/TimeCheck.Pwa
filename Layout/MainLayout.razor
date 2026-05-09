@@ -5,6 +5,7 @@
 @inject IEncouragementService EncouragementService
 @inject IJokeService JokeService
 <div class="page">
+    <TopNav />
     <main>
         <article class="content px-4">
             @Body
@@ -18,8 +19,19 @@
     protected override async Task OnInitializedAsync()
     {
         await SettingsService.LoadAsync();
-        await TimeCheckService.StartAsync();
-        await EncouragementService.StartAsync();
-        await JokeService.StartAsync();
+        if (SettingsService.TimeCheckEnabled)
+        {
+            await TimeCheckService.StartAsync();
+        }
+
+        if (SettingsService.EncouragementEnabled)
+        {
+            await EncouragementService.StartAsync();
+        }
+
+        if (SettingsService.JokesEnabled)
+        {
+            await JokeService.StartAsync();
+        }
     }
 }

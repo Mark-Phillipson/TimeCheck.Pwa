@@ -28,10 +28,7 @@
                 <label>Encouragement max interval (minutes)</label>
                 <input type="number" class="form-control" min="1" @bind="SettingsService.EncouragementIntervalMax" />
             </div>
-            <div class="mb-2 form-check">
-                <input class="form-check-input" type="checkbox" @bind="SettingsService.EncouragementEnabled" />
-                <label class="form-check-label">Enable Encouragement</label>
-            </div>
+            <!-- Feature toggles moved to Home screen for quick access -->
 
             <div class="d-flex gap-2 mb-2">
                 <button class="btn btn-success" @onclick="SaveSettings">Save Settings</button>

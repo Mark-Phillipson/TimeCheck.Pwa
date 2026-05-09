@@ -1,0 +1,38 @@
+.top-nav {
+    display: none;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background: var(--brand-primary);
+    color: var(--brand-on-primary);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    border-bottom: 1px solid rgba(0,0,0,0.06);
+}
+
+.top-nav .nav-item {
+    color: inherit;
+    text-decoration: none;
+    padding: 0.5rem 0.75rem;
+    border-radius: 0.35rem;
+}
+
+.top-nav .nav-item {
+    border: none;
+    background: transparent;
+    cursor: pointer;
+}
+
+.top-nav .nav-item.active {
+    color: var(--brand-accent);
+    background: rgba(255,255,255,0.02);
+}
+
+@media (min-width: 641px) {
+    .top-nav { display: flex; }
+}
+
+@media (max-width: 640px) {
+    .top-nav { display: none; }
+}

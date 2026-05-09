@@ -67,6 +67,9 @@ public class EncouragementService : IEncouragementService, IAsyncDisposable
 
     public ValueTask SayEncouragementNowAsync()
     {
+        if (_settings.IsQuiet || !_settings.EncouragementEnabled)
+            return ValueTask.CompletedTask;
+
         var list = _settings.EncouragementMessages ?? new List<string>() { "Keep going!" };
         var msg = list.Count > 0 ? list[_random.Next(list.Count)] : "Keep going!";
         return _tts.SpeakAsync(msg);

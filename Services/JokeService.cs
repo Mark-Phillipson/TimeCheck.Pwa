@@ -67,6 +67,9 @@ public class JokeService : IJokeService, IAsyncDisposable
 
     public ValueTask SayJokeNowAsync()
     {
+        if (_settings.IsQuiet || !_settings.JokesEnabled)
+            return ValueTask.CompletedTask;
+
         var list = _settings.JokeMessages ?? new List<string>() { "Why did the cyclist cross the road? To get to the other ride!" };
         var msg = list.Count > 0 ? list[_random.Next(list.Count)] : "Here's a cycling joke for you!";
         return _tts.SpeakAsync(msg);

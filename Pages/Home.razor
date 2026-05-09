@@ -11,14 +11,37 @@
 	<div class="home-inner mx-auto">
 		<h3 class="text-center">Time Check</h3>
 
-		<div class="mb-3">
-			<h1 class="time-display">@_currentTime</h1>
-		</div>
+		<div class="row">
+			<div class="col-12 col-md-4">
+				<div class="card mb-3">
+					<div class="card-body">
+						<div class="mb-2 form-check">
+							<input class="form-check-input touch-toggle" type="checkbox" id="homeTimeCheckToggle" @bind="TimeCheckEnabled" />
+							<label class="form-check-label" for="homeTimeCheckToggle">Enable Time Check</label>
+						</div>
+						<div class="mb-2 form-check">
+							<input class="form-check-input touch-toggle" type="checkbox" id="homeJokesToggle" @bind="JokesEnabled" />
+							<label class="form-check-label" for="homeJokesToggle">Enable Jokes</label>
+						</div>
+						<div class="mb-2 form-check">
+							<input class="form-check-input touch-toggle" type="checkbox" id="homeEncourageToggle" @bind="EncouragementEnabled" />
+							<label class="form-check-label" for="homeEncourageToggle">Enable Encouragement</label>
+						</div>
+					</div>
+				</div>
+			</div>
 
-		<div class="actions">
-			<button class="btn btn-primary btn-lg btn-touch" @onclick="AnnounceTime">Announce Time Now</button>
-			<button class="btn btn-secondary btn-lg btn-touch" @onclick="SpeakEncouragement">Say Encouragement Now</button>
-			<button class="btn btn-info btn-lg btn-touch" @onclick="TellJoke">Tell Joke Now</button>
+			<div class="col-12 col-md-8 text-center">
+				<div class="mb-3">
+					<h1 class="time-display">@_currentTime</h1>
+				</div>
+
+				<div class="actions">
+					<button class="btn btn-primary btn-lg btn-touch" @onclick="AnnounceTime" disabled="@(!SettingsService.TimeCheckEnabled || SettingsService.IsQuiet)">Announce Time Now</button>
+					<button class="btn btn-secondary btn-lg btn-touch" @onclick="SpeakEncouragement" disabled="@(!SettingsService.EncouragementEnabled || SettingsService.IsQuiet)">Say Encouragement Now</button>
+					<button class="btn btn-info btn-lg btn-touch" @onclick="TellJoke" disabled="@(!SettingsService.JokesEnabled || SettingsService.IsQuiet)">Tell Joke Now</button>
+				</div>
+			</div>
 		</div>
 	</div>
 </div>
@@ -55,6 +78,45 @@
 		await JokeService.SayJokeNowAsync();
 	}
 
+	private bool TimeCheckEnabled
+	{
+		get => SettingsService.TimeCheckEnabled;
+		set
+		{
+			if (SettingsService.TimeCheckEnabled != value)
+			{
+				SettingsService.TimeCheckEnabled = value;
+				_ = SettingsService.SaveAsync();
+			}
+		}
+	}
+
+	private bool JokesEnabled
+	{
+		get => SettingsService.JokesEnabled;
+		set
+		{
+			if (SettingsService.JokesEnabled != value)
+			{
+				SettingsService.JokesEnabled = value;
+				_ = SettingsService.SaveAsync();
+			}
+		}
+	}
+
+	private bool EncouragementEnabled
+	{
+		get => SettingsService.EncouragementEnabled;
+		set
+		{
+			if (SettingsService.EncouragementEnabled != value)
+			{
+				SettingsService.EncouragementEnabled = value;
+				_ = SettingsService.SaveAsync();
+			}
+		}
+	}
+
 	public ValueTask DisposeAsync()
 	{
 		if (_clockTimer != null)
@@ -65,3 +127,4 @@
 		return ValueTask.CompletedTask;
 	}
 }
+

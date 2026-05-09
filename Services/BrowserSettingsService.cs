@@ -14,6 +14,7 @@ public class BrowserSettingsService : ISettingsService
 
     public bool IsQuiet { get; set; } = false;
     public int TimeCheckIntervalMinutes { get; set; } = 5;
+    public bool TimeCheckEnabled { get; set; } = true;
     public int EncouragementIntervalMin { get; set; } = 10;
     public int EncouragementIntervalMax { get; set; } = 20;
     public bool EncouragementEnabled { get; set; } = true;
@@ -268,6 +269,7 @@ public class BrowserSettingsService : ISettingsService
                 {
                     IsQuiet = dto.IsQuiet;
                     TimeCheckIntervalMinutes = dto.TimeCheckIntervalMinutes > 0 ? dto.TimeCheckIntervalMinutes : TimeCheckIntervalMinutes;
+                    TimeCheckEnabled = dto.TimeCheckEnabled ?? TimeCheckEnabled;
                     EncouragementIntervalMin = dto.EncouragementIntervalMin > 0 ? dto.EncouragementIntervalMin : EncouragementIntervalMin;
                     EncouragementIntervalMax = dto.EncouragementIntervalMax > 0 ? dto.EncouragementIntervalMax : EncouragementIntervalMax;
                     EncouragementEnabled = dto.EncouragementEnabled;
@@ -330,6 +332,7 @@ public class BrowserSettingsService : ISettingsService
         {
             IsQuiet = IsQuiet,
             TimeCheckIntervalMinutes = TimeCheckIntervalMinutes,
+            TimeCheckEnabled = TimeCheckEnabled,
             EncouragementIntervalMin = EncouragementIntervalMin,
             EncouragementIntervalMax = EncouragementIntervalMax,
             EncouragementEnabled = EncouragementEnabled,
@@ -349,6 +352,7 @@ public class BrowserSettingsService : ISettingsService
     {
         public bool IsQuiet { get; set; }
         public int TimeCheckIntervalMinutes { get; set; }
+        public bool? TimeCheckEnabled { get; set; }
         public int EncouragementIntervalMin { get; set; }
         public int EncouragementIntervalMax { get; set; }
         public bool EncouragementEnabled { get; set; }

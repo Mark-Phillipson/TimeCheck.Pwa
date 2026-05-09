@@ -7,6 +7,7 @@ public interface ISettingsService
 {
     bool IsQuiet { get; set; }
     int TimeCheckIntervalMinutes { get; set; }
+    bool TimeCheckEnabled { get; set; }
     int EncouragementIntervalMin { get; set; }
     int EncouragementIntervalMax { get; set; }
     bool EncouragementEnabled { get; set; }

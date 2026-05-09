@@ -1,0 +1,26 @@
+@using System
+@inject NavigationManager NavManager
+
+@* Desktop top navigation (visible on larger screens) *@
+<nav class="top-nav" role="navigation" aria-label="Primary navigation">
+    <button class="nav-item @(IsActive(""))" type="button" @onclick="GoHome" aria-label="Home">Home</button>
+    <button class="nav-item @(IsActive("Settings"))" type="button" @onclick="GoSettings">Settings</button>
+    <button class="nav-item @(IsActive("Jokes"))" type="button" @onclick="GoJokes">Jokes</button>
+    <button class="nav-item @(IsActive("Encouragements"))" type="button" @onclick="GoMessages">Messages</button>
+</nav>
+
+@code {
+    private string IsActive(string relative)
+    {
+        var current = NavManager.ToBaseRelativePath(NavManager.Uri).Trim('/');
+        var target = (relative ?? "").Trim('/');
+        if (string.IsNullOrEmpty(target))
+            return string.IsNullOrEmpty(current) ? "active" : string.Empty;
+        return string.Equals(current, target, StringComparison.OrdinalIgnoreCase) ? "active" : string.Empty;
+    }
+
+    private void GoHome() => NavManager.NavigateTo("/");
+    private void GoSettings() => NavManager.NavigateTo("/Settings");
+    private void GoJokes() => NavManager.NavigateTo("/Jokes");
+    private void GoMessages() => NavManager.NavigateTo("/Encouragements");
+}

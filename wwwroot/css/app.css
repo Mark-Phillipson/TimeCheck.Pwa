@@ -113,3 +113,9 @@ code {
 .form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
     text-align: start;
 }
+
+/* Global touch-friendly button size used on home and other pages */
+.btn-touch {
+    padding: 14px 20px;
+    font-size: 1.05rem;
+}
